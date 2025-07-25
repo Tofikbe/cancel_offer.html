@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Cancel NFT Offer - Pengutos</title>
+</head>
+<body>
+  <h2>Cancel Pending NFT Offer - Penguto #0</h2>
+  <button id="connect">🔗 Connect Petra Wallet</button>
+  <br/><br/>
+  <button id="cancelOffer">❌ Cancel NFT Offer</button>
+
+  <script>
+    let walletAddress = "";
+
+    document.getElementById("connect").onclick = async () => {
+      if (window.aptos) {
+        try {
+          const response = await window.aptos.connect();
+          walletAddress = response.address;
+          alert("✅ Wallet connected: " + walletAddress);
+        } catch (err) {
+          alert("❌ Wallet connection failed: " + err.message);
+        }
+      } else {
+        alert("❗ Petra Wallet not found. Please install it.");
+      }
+    };
+
+    document.getElementById("cancelOffer").onclick = async () => {
+      if (!walletAddress) {
+        alert("Connect wallet first.");
+        return;
+      }
+
+      const payload = {
+        type: "entry_function_payload",
+        function: "0x3::token_transfers::cancel_offer",
+        type_arguments: [],
+        arguments: [
+          "0x1f7c4a0e1b11abbe639cb52cd5fcc787cffc02f6da5ab3df0035139fce20a141",
+          {
+            type: "0x3::token::TokenId",
+            value: {
+              token_data_id: {
+                creator: "0xf4b765e683f399b07790cf217b188b1918c6af55",
+                collection: "Pengutos",
+                name: "Penguto #0"
+              },
+              property_version: "0"
+            }
+          }
+        ]
+      };
+
+      try {
+        const txnHash = await window.aptos.signAndSubmitTransaction(payload);
+        alert("⏳ Cancel request sent! Txn Hash: " + txnHash.hash);
+      } catch (err) {
+        alert("❌ Error: " + err.message);
+      }
+    };
+  </script>
+</body>
+</html>
